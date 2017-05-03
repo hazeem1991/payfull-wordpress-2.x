@@ -26,7 +26,7 @@ $IDS = [
 $LBLS = [
     'holder'        => __( 'Holder Name', 'payfull' ),
     'pan'           => __( 'Credit Card Number', 'payfull' ),
-    'month'         => __( 'Expiry Momnth', 'payfull' ),
+    'month'         => __( 'Expiry Month', 'payfull' ),
     'year'          => __( 'Expiry Year', 'payfull' ),
     'cvc'           => __( 'Card Verification Code (CVC)', 'payfull' ),
     'use3d'         => __( 'Use 3D secure Payments System', 'payfull' ),
@@ -85,11 +85,12 @@ $VALS = [
     <div class="fieldset" id="<?php echo $IDS['cardset']; ?>">
         <?php if($enable_bkm):?>
             <ul class="tab">
-                <li><a href="javascript:void(0)" class="tablinks active" data-method="cardPaymentMethod"><?php echo __('Credit card/Debit card'); ?></a></li>
+                <li><a href="javascript:void(0)" class="tablinks active" data-method="cardPaymentMethod"><?php echo __('Credit card/Debit card', 'payfull'); ?></a></li>
                 <li><a href="javascript:void(0)" class="tablinks bkmTab" data-method="bkmPaymentMethod"><img class="bkmImage" src="<?php echo $bankImagesPath; ?>/BKM.png"></a></li>
             </ul>
         <?php endif;?>
         <?php //do_action( 'woocommerce_credit_card_form_start', $this->id ); ?>
+
         <?php if($enable_bkm):?>
             <div class="tabcontent" id="cardPaymentMethod" style="display: block;">
         <?php endif;?>
@@ -140,7 +141,7 @@ $VALS = [
                     <div id="installment_table_id">
                         <div class="installmet_head">
                             <div class="install_head_label add_space"><img style="display: none" class="bank_photo" data-src="<?php echo $bankImagesPath; ?>" src=""></div>
-                            <div class="install_head_label"><?php echo __('Installmet', 'payfull') ?></div>
+                            <div class="install_head_label"><?php echo __('Installment', 'payfull') ?></div>
                             <div class="install_head_label"><?php echo __('Amount / Month', 'payfull') ?></div>
                             <div class="install_head_label"><?php echo __('Total', 'payfull') ?></div>
                         </div>
@@ -326,7 +327,7 @@ $VALS = [
                     payfull.updateGrandTotal(total, payfull.currency);
                 }
 
-                var textOfCount = count==1 ? '<?php echo __('One Shot')?>' : count;
+                var textOfCount = count==1 ? '<?php echo __('One Shot', 'payfull')?>' : count;
                 if(' <?php echo $enable_extra_installment; ?>' == true){
                     textOfCount     = hasExtra=='1'?'<span class="joker">'+count+' + Joker</span>' : textOfCount;
                 }

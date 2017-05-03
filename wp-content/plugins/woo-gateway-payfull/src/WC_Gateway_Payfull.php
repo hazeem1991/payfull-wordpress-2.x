@@ -1,5 +1,5 @@
 <?php
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
 
 class WC_Gateway_Payfull extends WC_Payment_Gateway
 {

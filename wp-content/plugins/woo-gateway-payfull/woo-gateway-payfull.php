@@ -16,6 +16,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+function pf_load_textdomain() {
+    load_plugin_textdomain( 'payfull', false, dirname( plugin_basename(__FILE__) ) . '/i18n/languages/' );
+}
+
 function woo_gateway_payfull_init() {
     if(!defined('WOOCOMMERCE_VERSION')) {
         throw new \Exception('The WooCommerce is not activated.');
@@ -72,3 +76,4 @@ add_filter( 'woocommerce_payment_gateways', 'woo_gateway_payfull_add_class' );
 register_activation_hook( __FILE__, 'woo_gateway_payfull_activate' );
 register_deactivation_hook( __FILE__, 'woo_gateway_payfull_deactivate' );
 add_shortcode( 'payfull_payment_result', 'woo_gateway_payfull_payment_result_shortcode' );
+add_action('plugins_loaded', 'pf_load_textdomain');
