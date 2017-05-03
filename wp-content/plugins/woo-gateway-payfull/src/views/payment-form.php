@@ -24,11 +24,11 @@ $IDS = [
 ];
 
 $LBLS = [
-    'holder'        => __( 'Name on Card', 'woocommerce' ),
-    'pan'           => __( 'Credit Card Number', 'woocommerce' ),
-    'month'         => __( 'Expiry Momnth', 'woocommerce' ),
-    'year'          => __( 'Expiry Year', 'woocommerce' ),
-    'cvc'           => __( 'Card Verification Number', 'woocommerce' ),
+    'holder'        => __( 'Holder Name', 'payfull' ),
+    'pan'           => __( 'Credit Card Number', 'payfull' ),
+    'month'         => __( 'Expiry Momnth', 'payfull' ),
+    'year'          => __( 'Expiry Year', 'payfull' ),
+    'cvc'           => __( 'Card Verification Code (CVC)', 'payfull' ),
     'use3d'         => __( 'Use 3D secure Payments System', 'payfull' ),
     'installment'   => __("installment", "payfull"),
     'total'         => __("Total", "payfull"),
@@ -71,8 +71,17 @@ $VALS = [
     .tabcontent {  display: none;  padding: 6px 12px;  border: 1px solid #ccc;  border-top: none;  }
     .bkmImage {  height: 100% !important;  }
     .bkmTab {  padding: 2px !important;  }
+    .payfull-checkout-form {
+        max-width: 500px;
+    }
+    .payfull-month-select-div, .payfull-year-select-div{
+        float: left;
+        width: 49%;
+        margin-right: 1%;
+        margin-top: 10px;
+    }
 </style>
-<form method="post" class="col-md-12">
+<form method="post" class="col-md-12 payfull-checkout-form">
     <div class="fieldset" id="<?php echo $IDS['cardset']; ?>">
         <?php if($enable_bkm):?>
             <ul class="tab">
@@ -93,29 +102,34 @@ $VALS = [
                     <input value="<?php echo $VALS['pan']; ?>" id="<?php echo $IDS['pan']; ?>" data-value="<?php echo $VALS['pan']; ?>" class="input-text wc-credit-card-form-card-number input-cc-number-not-supported" type="text" maxlength="20" autocomplete="off" placeholder="•••• •••• •••• ••••" name="card[pan]" />
                 </p>
                 <div class="form-row form-row-wide">
-                    <p class="form-row form-row-first">
-                        <label for="<?php echo $IDS['month']; ?>"><?php echo $LBLS['month']; ?> <span class="required">*</span></label>
-                        <select id="<?php echo $IDS['month']; ?>" name="card[month]" class="input-text wc-credit-card-form-card-month">
-                            <option value=""><?php echo __('Month', 'payfull'); ?></option>
-                            <?php for($i=1;$i<=12;$i++) : ?>
-                                <?php $i = (strlen($i) == 2)?$i:'0'.$i; ?>
-                                <?php $selected = $i==$VALS['month'] ? 'selected' : ''; ?>
-                                <option value="<?php echo $i;?>" <?php echo $selected; ?> ><?php echo $i;?></option>
-                            <?php endfor; ?>
-                        </select>
-                    </p>
+                    <div class="payfull-month-select-div">
+                        <p class="form-row form-row-first payfull-month-select-p">
+                            <label for="<?php echo $IDS['month']; ?>"><?php echo $LBLS['month']; ?> <span class="required">*</span></label>
+                            <select id="<?php echo $IDS['month']; ?>" name="card[month]" class="input-text wc-credit-card-form-card-month">
+                                <option value=""><?php echo __('Month', 'payfull'); ?></option>
+                                <?php for($i=1;$i<=12;$i++) : ?>
+                                    <?php $i = (strlen($i) == 2)?$i:'0'.$i; ?>
+                                    <?php $selected = $i==$VALS['month'] ? 'selected' : ''; ?>
+                                    <option value="<?php echo $i;?>" <?php echo $selected; ?> ><?php echo $i;?></option>
+                                <?php endfor; ?>
+                            </select>
+                        </p>
+                    </div>
 
-                    <p class="form-row form-row-last">
-                        <label for="<?php echo $IDS['year']; ?>"><?php echo $LBLS['year']; ?> <span class="required">*</span></label>
-                        <select id="<?php echo $IDS['year']; ?>" name="card[year]" class="input-text wc-credit-card-form-card-year">
-                            <option value=""><?php echo __('Year', 'payfull'); ?></option>
-                            <?php for($i=0;$i<15;$i++) : ?>
-                                <?php $year = date('Y') + $i; ?>
-                                <?php $selected = $year==$VALS['year'] ? 'selected' : ''; ?>
-                                <option value="<?php echo $year;?>" <?php echo $selected; ?> ><?php echo $year;?></option>
-                            <?php endfor; ?>
-                        </select>
-                    </p>
+                    <div class="payfull-year-select-div">
+                        <p class="form-row form-row-last payfull-year-select-p">
+                            <label for="<?php echo $IDS['year']; ?>"><?php echo $LBLS['year']; ?> <span class="required">*</span></label>
+                            <select id="<?php echo $IDS['year']; ?>" name="card[year]" class="input-text wc-credit-card-form-card-year">
+                                <option value=""><?php echo __('Year', 'payfull'); ?></option>
+                                <?php for($i=0;$i<15;$i++) : ?>
+                                    <?php $year = date('Y') + $i; ?>
+                                    <?php $selected = $year==$VALS['year'] ? 'selected' : ''; ?>
+                                    <option value="<?php echo $year;?>" <?php echo $selected; ?> ><?php echo $year;?></option>
+                                <?php endfor; ?>
+                            </select>
+                        </p>
+                    </div>
+
                 </div>
                 <p class="form-row form-row-wide">
                     <label for="<?php echo $IDS['cvc']; ?>"><?php echo $LBLS['cvc']; ?> <span class="required">*</span></label>
@@ -177,7 +191,8 @@ $VALS = [
         <?php //do_action( 'woocommerce_credit_card_form_end', $this->id ); ?>
         <div class="clear"></div>
 
-        <input type="submit" value="Pay" >
+        <input type="submit" value="<?php echo __( 'Checkout', 'payfull' ); ?>" class="btn button btn-primary bottun-primary button default small">
+        <br><br>
 </form>
 
 <?php if($enable_installment) : ?>
