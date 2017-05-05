@@ -213,7 +213,7 @@ $VALS = [
                 $.ajax({
                     url: "index.php?payfull-api=v1",
                     method: "POST",
-                    data: { command:"banks" , total: payfull.total, currency:'<?php echo $currencyAsText; ?>'},
+                    data: { command:"banks" , total: payfull.total, currency:'<?php echo $currencyAsText; ?>', getExtraInstallmentsActive:'<?php echo ($enable_extra_installment)?'1':'0'; ?>'},
                     dataType: "json",
                     success: function (response) {
                         payfull.banks = response.data;
