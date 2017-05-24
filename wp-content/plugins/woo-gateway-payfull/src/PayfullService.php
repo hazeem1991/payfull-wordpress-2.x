@@ -154,8 +154,7 @@ class PayfullService {
         ]);
     }
     
-    public function send($op, $data, $return_json=true)
-    {
+    public function send($op, $data, $return_json=true){
         if(empty($this->client_ip)) {
             $this->client_ip = $_SERVER['REMOTE_ADDR'] ;
         }
@@ -163,10 +162,7 @@ class PayfullService {
         $data['merchant'] = $this->username;
         $data['language'] = $this->language;
         $data['client_ip'] = $this->client_ip;
-        //return $data;
         $data['hash'] = $this->hash($data);
-//        print_r($data);
-//        exit;
         $content = self::post($this->endpoint, $data);
         
         if($return_json){
@@ -179,6 +175,7 @@ class PayfullService {
     {
         $message = '';
         ksort($data);
+
         foreach($data as $key=>$value) {
             $message .= strlen($value).$value;
         }

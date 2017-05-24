@@ -160,6 +160,9 @@ $VALS = [
                     <input id="<?php echo $IDS['installment']; ?>" type="hidden" name="installment" value="<?php echo $VALS['installment']; ?>" />
                 </p>
                 <?php endif; ?>
+
+
+
                 <?php if($enable_extra_installment) : ?>
                 <div class="form-row form-row-wide extra_installments_container" style="display: none">
                     <p class="form-row form-row-first" >
@@ -169,14 +172,29 @@ $VALS = [
                     <div class="extra_installments_select form-row-first"></div>
                 </div>
                 <?php endif; ?>
-                <?php if($enable_3dSecure) : ?>
-            <p class="form-row form-row-wide payfull-3dsecure" id="<?php echo $IDS['use3d-row'] ?>">
-                <label for="<?php echo $IDS['use3d']; ?>">
-                    <input <?php if(isset($VALS['use3d'])AND$VALS['use3d']) echo 'checked'; ?> id="<?php echo $IDS['use3d']; ?>" class="input-checkbox payfull-options-use3d" type="checkbox" name="use3d" value="true" />
-                    <?php echo $LBLS['use3d']; ?>
-                </label>
-            </p>
-            <?php endif; ?>
+
+                <?php if($force_3dSecure) : ?>
+
+                    <p class="form-row form-row-wide payfull-3dsecure" id="<?php echo $IDS['use3d-row'] ?>">
+                        <label for="<?php echo $IDS['use3d']; ?>">
+                            <input data-forced="true" checked="checked" disabled="disabled" id="<?php echo $IDS['use3d']; ?>" class="input-checkbox payfull-options-use3d" type="checkbox" name="use3d" value="true" />
+                            <?php echo $LBLS['use3d']; ?>
+                        </label>
+                    </p>
+                <?php elseif($enable_3dSecure) : ?>
+
+                    <p class="form-row form-row-wide payfull-3dsecure" id="<?php echo $IDS['use3d-row'] ?>">
+                        <label for="<?php echo $IDS['use3d']; ?>">
+                            <input data-forced="false" <?php if(isset($VALS['use3d'])AND$VALS['use3d']) echo 'checked'; ?> id="<?php echo $IDS['use3d']; ?>" class="input-checkbox payfull-options-use3d" type="checkbox" name="use3d" value="true" />
+                            <?php echo $LBLS['use3d']; ?>
+                        </label>
+                    </p>
+                <?php endif; ?>
+
+
+
+
+
         <?php if($enable_bkm):?>
             </div>
             <div class="tabcontent" id="bkmPaymentMethod">
@@ -278,13 +296,23 @@ $VALS = [
                             payfull.refreshInstallmentPlans('', response.data.type);
                         }
 
+                        //force 3d for debit
+                        if(response.data.type != 'CREDIT'){
+                            $('#<?php echo $IDS['use3d']; ?>').attr('disabled', 'disabled');
+                            $('#<?php echo $IDS['use3d']; ?>').prop("checked", true);
+
+                        }else if($('#<?php echo $IDS['use3d']; ?>').attr('data-forced') == 'false'){
+                            $('#<?php echo $IDS['use3d']; ?>').removeAttr('disabled');
+                        }
+
+
+                        //show bank image
                         if(bank && bank.length){
                             if(response.data.type == 'CREDIT'){
                                 $bank_photo.attr('src', $bank_photo.attr('data-src')+'networks/'+bank+'.png');
                             }else{
                                 $bank_photo.attr('src', $bank_photo.attr('data-src')+'banks/'+bank+'.png');
                             }
-
                             $bank_photo.show();
                         }else{
                             $bank_photo.hide();
@@ -364,7 +392,7 @@ $VALS = [
                         for (var j in bank.installments) {
                             opt = bank.installments[j];
                             if(opt.count < 2) continue;
-
+                            
                             fee = parseFloat(opt.commission);
                             t = Math.round(this.total * (1+fee)*100)/100;
                             optEl = this.getInstallmentOption(opt.count, this.total, fee, this.currency, bank.has3d, bank.bank, bank.gateway, opt.hasExtra) ;
@@ -378,7 +406,11 @@ $VALS = [
             getExtraInstallments: function (total, count, bank, gateway) {
                 var divSelectorExtraInst  = $('.extra_installments_container');
                 var containerSelectorInst = $('.extra_installments_select');
-
+                if(count == '1'){
+                    containerSelectorInst.html('');
+                    divSelectorExtraInst.css('display', 'none');
+                    return;
+                }
                 var url = "index.php?payfull-api=v1";
                 $.ajax({
                     url: url,
@@ -561,7 +593,7 @@ $VALS = [
         payfull.run();
     })(jQuery);
 </script>
-    <script type="text/javascript">
+<script type="text/javascript">
         (function ($) {
             $('.tablinks').click(function(evt){
                 methodName = $(this).attr('data-method');

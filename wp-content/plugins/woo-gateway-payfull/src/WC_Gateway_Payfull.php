@@ -15,6 +15,7 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
     public $custom_css = null;
     public $endpoint = null;
     public $enable_3dSecure = 1;
+    public $force_3dSecure  = 0;
     public $enable_installment = 1;
     public $enable_extra_installment = 0;
     public $enable_bkm = 0;
@@ -52,6 +53,7 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
         $this->currency_class = $this->get_option('currency_class');
         $this->total_selector = $this->get_option('total_selector');
         $this->enable_3dSecure = $this->get_option('enable_3dSecure');
+        $this->force_3dSecure = $this->get_option('force_3dSecure');
         $this->enable_installment = $this->get_option('enable_installment');
         $this->enable_extra_installment = $this->get_option('enable_extra_installment');
         $this->enable_bkm = $this->get_option('enable_bkm');
@@ -183,6 +185,12 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
                 'type' => 'select',
                 'options'     => array(__( 'No', 'payfull' ),__( 'Yes', 'payfull' )),
                 'description' => __('Choose whether to enable 3D secure payament option.', 'payfull'),
+            ),
+            'force_3dSecure' => array(
+                'title' => __('Force 3D Secure', 'payfull'),
+                'type' => 'select',
+                'options'     => array(__( 'No', 'payfull' ),__( 'Yes', 'payfull' )),
+                'description' => __('If 3D secure option is mandatory in Payfull side, this option must be enable. Otherwise your transactions will fail.', 'payfull'),
             ),
             'enable_installment' => array(
                 'title' => __('Enable Installment', 'payfull'),
@@ -321,6 +329,7 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
             'currency_symbol' => get_woocommerce_currency_symbol($order->get_order_currency()),
             'custom_css' => $this->get_option('custom_css'),
             'enable_3dSecure' => intval($this->enable_3dSecure) === 1,
+            'force_3dSecure' => intval($this->force_3dSecure) === 1,
             'enable_installment' => intval($this->enable_installment)===1,
             'enable_extra_installment' => intval($this->enable_extra_installment)===1,
             'enable_bkm' => intval($this->enable_bkm)===1,
@@ -337,6 +346,26 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
 
         if($this->enable_3dSecure && isset($data['use3d'])) {
             $use3d = ($data['use3d']=="true");
+        }
+
+        if($this->force_3dSecure) {
+            $use3d = true;
+        }
+
+        if($this->force_3dSecure_debit) {
+            $bin = str_replace(' ', '', $card['pan']);
+            $bin = substr($bin, 0, 6);
+            $cardInfo = $this->hepsipay()->bin($bin);
+            if($cardInfo['status']){
+                $cardInfo = $cardInfo['data'];
+                if(
+                    !isset($cardInfo['type']) OR
+                    $cardInfo['type'] != 'CREDIT' OR
+                    $cardInfo['type'] == null
+                ) $use3d = true;
+            }else{
+                $use3d = true;
+            }
         }
 
         if($this->enable_installment && isset($data['installment'])) {
