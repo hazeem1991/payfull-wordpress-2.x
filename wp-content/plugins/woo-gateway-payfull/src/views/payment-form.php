@@ -62,7 +62,7 @@ $VALS = [
     /* Float the list items side by side */
     ul.tab li {float: left; height: 61px;}
     /* Style the links inside the list items */
-    ul.tab li a {  display: inline-block;  color: black;  text-align: center;  padding: 14px 16px;  text-decoration: none;  transition: 0.3s;  font-size: 17px; height: 61px; }
+    ul.tab li a {  display: inline-block;  color: black;  text-align: center;  padding: 5px 16px;  text-decoration: none;  transition: 0.3s;  font-size: 17px; height: 61px; }
     /* Change background color of links on hover */
     ul.tab li a:hover {background-color: #ddd;}
     /* Create an active/current tablink class */
@@ -80,13 +80,25 @@ $VALS = [
         margin-right: 1%;
         margin-top: 10px;
     }
+    #payfullImage{
+        padding: 0;
+        margin: 0 auto;
+        max-width: 90px;
+        box-shadow: none;
+        display: block;
+    }
+    #bkmLogo{
+        padding: 0;
+        margin: 0 auto;
+        box-shadow: none;
+    }
 </style>
 <form method="post" class="col-md-12 payfull-checkout-form">
     <div class="fieldset" id="<?php echo $IDS['cardset']; ?>">
         <?php if($enable_bkm):?>
             <ul class="tab">
-                <li><a href="javascript:void(0)" class="tablinks active" data-method="cardPaymentMethod"><?php echo __('Credit card/Debit card', 'payfull'); ?></a></li>
-                <li><a href="javascript:void(0)" class="tablinks bkmTab" data-method="bkmPaymentMethod"><img class="bkmImage" src="<?php echo $bankImagesPath; ?>/BKM.png"></a></li>
+                <li><a href="javascript:void(0)" class="tablinks active" data-method="cardPaymentMethod"><?php echo __('Credit card/Debit card', 'payfull'); ?><img id="payfullImage" src="<?php echo $bankImagesPath; ?>logo.png"></a></li>
+                <li><a href="javascript:void(0)" class="tablinks bkmTab" data-method="bkmPaymentMethod"><img class="bkmImage" id="bkmLogo" src="<?php echo $bankImagesPath; ?>/BKM.png"></a></li>
             </ul>
         <?php endif;?>
         <?php //do_action( 'woocommerce_credit_card_form_start', $this->id ); ?>

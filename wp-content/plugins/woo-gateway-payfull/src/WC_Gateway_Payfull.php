@@ -368,6 +368,7 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
             }
         }
 
+
         if($this->enable_installment && isset($data['installment'])) {
             $installments = intval($data['installment']);
             $installments = $installments <=0 ? 1 : $installments;
@@ -435,7 +436,7 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
         }
 
         $return_json = !($use3d OR $data["useBKM"]);
-        
+
         $response = $this->payfull()->send('Sale', $request, $return_json);
 
         if($use3d or $data["useBKM"]) {
@@ -524,7 +525,8 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
         ksort($arr);
         $hashString_char_count = "";
         foreach ($arr as $key=>$val) {
-            $hashString_char_count .= mb_strlen($val) . $val;
+            $l = mb_strlen($val);
+            if($l) $hashString_char_count .= $l . $val;
         }
         $hashString_char_count      = strtolower(hash_hmac("sha1", $hashString_char_count, $this->password));
         return $hashString_char_count;

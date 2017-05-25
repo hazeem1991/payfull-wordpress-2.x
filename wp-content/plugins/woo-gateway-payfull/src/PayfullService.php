@@ -1,9 +1,5 @@
 <?php
-/**
- * Description of PayfullService
- *
- * @author houmam
- */
+
 class PayfullService {
     public $username;
     public $password;
@@ -11,9 +7,7 @@ class PayfullService {
     public $language;
     public $client_ip;
 
-
     public function __construct($config=[]) {
-        
         if (!empty($config)) {
             foreach ($config as $name => $value) {
                 if(!property_exists($this, $name)) {
@@ -27,16 +21,14 @@ class PayfullService {
         }
     }
     
-    public function bin($bin)
-    {
+    public function bin($bin) {
         return $this->send('Get', [
             'get_param' => 'Issuer',
             'bin' => $bin
         ]);
     }
     
-    public function banks($data)
-    {
+    public function banks($data) {
         $installments = $this->send('Get', [
             'get_param' => 'Installments',
         ]);
@@ -74,8 +66,7 @@ class PayfullService {
         return $installments;
     }
 
-    public function oneShotCommission()
-    {
+    public function oneShotCommission() {
         $oneShotCommission = $this->send('Get', [
             'get_param'            => 'Installments',
             "one_shot_commission"  => 1
@@ -90,8 +81,7 @@ class PayfullService {
         return $oneShotCommission;
     }
 
-    public function extraInstallments($data)
-    {
+    public function extraInstallments($data) {
         return $this->send('Get', [
             'get_param'       => 'ExtraInstallments',
             "total"           => $data['total'],
@@ -102,8 +92,7 @@ class PayfullService {
         ]);
     }
 
-    public function extraInstallmentsList($currency = false)
-    {
+    public function extraInstallmentsList($currency = false) {
         if($currency){
             return $this->send('Get', [
                 'get_param'       => 'ExtraInstallmentsList',
@@ -118,8 +107,7 @@ class PayfullService {
 
     }
 
-    public function getCommission($amount, $bankId, $installmentCount)
-    {
+    public function getCommission($amount, $bankId, $installmentCount) {
         if($installmentCount===1) {
             return $this->oneShotCommission();
         }
@@ -146,46 +134,45 @@ class PayfullService {
         return 0;
     }
     
-    public function refund($transaction_id, $amount)
-    {
+    public function refund($transaction_id, $amount) {
         return $this->send('Return', [
             'transaction_id' => $transaction_id,
             'total' => $amount
         ]);
     }
     
-    public function send($op, $data, $return_json=true){
+    public function send($op, $data, $return_json=true) {
+
         if(empty($this->client_ip)) {
             $this->client_ip = $_SERVER['REMOTE_ADDR'] ;
         }
+
         $data['type'] = $op;
         $data['merchant'] = $this->username;
         $data['language'] = $this->language;
         $data['client_ip'] = $this->client_ip;
         $data['hash'] = $this->hash($data);
         $content = self::post($this->endpoint, $data);
-        
+
         if($return_json){
             return json_decode($content, true);
         }
         return $content;
     }
     
-    private function hash($data) 
-    {
+    private function hash($data) {
         $message = '';
         ksort($data);
-
         foreach($data as $key=>$value) {
-            $message .= strlen($value).$value;
+            $l = mb_strlen($value);
+            if($l) $message .= $l . $value;
         }
         $hash = hash_hmac('sha1', $message, $this->password);
         
         return $hash;
     }
     
-    public static function post($url, $data=array())
-    {
+    public static function post($url, $data=array()) {
         $options = array(
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_FOLLOWLOCATION => true,
@@ -201,11 +188,8 @@ class PayfullService {
         $curl = curl_init($url);
         curl_setopt_array($curl, $options);
         curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($data));
-
-        //ssl
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-        
         $content  = curl_exec($curl);
         $error = curl_error($curl);
         curl_close($curl);
@@ -215,9 +199,7 @@ class PayfullService {
                 '{error}' => $error,
             )));
         }
-
         return $content;
     }
-
 
 }
