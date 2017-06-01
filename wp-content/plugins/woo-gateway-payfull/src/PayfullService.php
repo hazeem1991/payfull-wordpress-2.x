@@ -189,12 +189,6 @@ class PayfullService {
             CURLOPT_TIMEOUT        => 120,
             CURLOPT_CUSTOMREQUEST  => "POST",
         );
-        if ($data['type'] == 'Sale'){
-            echo "<pre>";
-            var_dump($data);
-            echo "</pre>";
-            die;
-        }
 
         $curl = curl_init($url);
         curl_setopt_array($curl, $options);
