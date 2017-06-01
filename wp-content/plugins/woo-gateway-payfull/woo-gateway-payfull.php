@@ -6,11 +6,9 @@
  *  Text Domain: payfull
  *  Domain Path: /i18n/languages/
  *  Version: 1.0.0
- *  Author: Houmam WAZZEH <houmam@payfull.com>
+ *  Author: Payfull
  *  Author URI: https://www.payfull.com
  * */
-
-ini_set('display_errors', 1);
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

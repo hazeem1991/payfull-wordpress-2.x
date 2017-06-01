@@ -1,6 +1,7 @@
 <?php
 
 class PayfullService {
+
     public $username;
     public $password;
     public $endpoint;
@@ -28,7 +29,8 @@ class PayfullService {
         ]);
     }
     
-    public function banks($data) {
+    public function banks($data = []) {
+
         $installments = $this->send('Get', [
             'get_param' => 'Installments',
         ]);
@@ -36,6 +38,8 @@ class PayfullService {
         $installments['oneShotCommission'] = $this->oneShotCommission();
 
         $getExtraInstallmentsActive = (isset( $data['getExtraInstallmentsActive']) AND $data['getExtraInstallmentsActive'] )?true:false;
+
+
 
         if($getExtraInstallmentsActive){
             $extraInstallmentsList = $this->extraInstallmentsList($data['currency']);
@@ -61,7 +65,6 @@ class PayfullService {
                 }
             }
         }
-
 
         return $installments;
     }
@@ -115,6 +118,8 @@ class PayfullService {
         $bankId = strtolower($bankId);
 
         $banks = $this->banks();
+
+
         $valid = isset($banks['status'], $banks['data']) && $banks['status'] && is_array($banks['data']);
         if(!$valid) { return 0; }
         
@@ -184,6 +189,12 @@ class PayfullService {
             CURLOPT_TIMEOUT        => 120,
             CURLOPT_CUSTOMREQUEST  => "POST",
         );
+        if ($data['type'] == 'Sale'){
+            echo "<pre>";
+            var_dump($data);
+            echo "</pre>";
+            die;
+        }
 
         $curl = curl_init($url);
         curl_setopt_array($curl, $options);

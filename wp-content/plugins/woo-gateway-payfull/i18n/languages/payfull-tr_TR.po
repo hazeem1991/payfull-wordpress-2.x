@@ -75,6 +75,13 @@ msgstr "API Şifre"
 msgid "Enable 3D secure"
 msgstr "3D Aktif"
 
+msgid "Force 3D Secure"
+msgstr "3D Zorunlu"
+
+msgid "If 3D secure option is mandatory in Payfull side, this option must be enable. Otherwise your transactions will fail."
+msgstr "Hepsipay tarafından 3D secure özelliği tarafınıza zorunlu tutulduysa bu seçeneğin aktif olması gerekmektedir. Aksi takdirde işlemleriniz başarısız olacaktır."
+
+
 #: src/WC_Gateway_Payfull.php:177 src/WC_Gateway_Payfull.php:183
 msgid "No"
 msgstr "Hayır"
@@ -94,6 +101,15 @@ msgstr "Taksit Aktif"
 #: src/WC_Gateway_Payfull.php:184
 msgid "Choose whether to enable installment option."
 msgstr "Taksit Seçeneklerini Aktif Edebilirsiniz"
+
+msgid "Enable Extra Installment"
+msgstr "Ekstra Taksit Aktif"
+
+msgid "Enable BKM Express"
+msgstr "BKM Express Aktif"
+
+msgid "BKM Exkpress'i aktif edebilirsiniz."
+msgstr "Choose whether to enable BKM Express gateway."
 
 #: src/WC_Gateway_Payfull.php:187
 msgid "Total Selector"
@@ -210,11 +226,11 @@ msgstr "Kredi Kartı Numarası"
 
 #: src/views/payment-form.php:26
 msgid "Expiry Month"
-msgstr "SKT-Ay"
+msgstr "Ay"
 
 #: src/views/payment-form.php:27
 msgid "Expiry Year"
-msgstr "SKT-Yıl"
+msgstr "Yıl"
 
 #: src/views/payment-form.php:28
 msgid "Card Verification Number"

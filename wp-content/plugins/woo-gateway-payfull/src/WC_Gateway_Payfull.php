@@ -1,8 +1,6 @@
 <?php
-ini_set('display_errors', 0);
 
-class WC_Gateway_Payfull extends WC_Payment_Gateway
-{
+class WC_Gateway_Payfull extends WC_Payment_Gateway {
     const INSTALLMENTS_TYPE_TABLE = "table";
     const INSTALLMENTS_TYPE_LIST = "list";
     
@@ -26,8 +24,7 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
      */
     public $options = [];
 
-    public function __construct($register_hooks=false)
-    {
+    public function __construct($register_hooks=false) {
         $this->id = 'woo_gateway_payfull';
         $this->icon = plugins_url('woo-gateway-payfull/assets/img/icon.png');
         $this->has_fields = false;
@@ -36,13 +33,10 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
         $this->order_button_text = __('Proceed to Payfull', 'payfull');
         $this->supports = array(
             'products',
-			//'default_credit_card_form',
 			'refunds',
         );
-
         $this->init_form_fields();
         $this->init_settings();
-
         $this->title = $this->get_option( 'title' );
         $this->enabled = $this->get_option('enabled');
         $this->description = $this->get_option('description');
@@ -66,8 +60,7 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
         }
     }
     
-    public function version()
-    {
+    public function version() {
         return "v1";
     }
 
@@ -83,37 +76,34 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
                 'language' => $lang[0],
             ]);
         }
-        
         return $this->_payfull;
     }
     
-    public function initApiService()
-    {
+    public function initApiService() {
         add_rewrite_tag( '%payfull-api%', '([^&]+)' );
         add_action( 'template_redirect', array($this, 'handleApiRequest'));
     }
     
-    public function handleApiRequest()
-    {
+    public function handleApiRequest() {
         global $wp_query;
-
         $payfull = $wp_query->get( 'payfull-api' );
 
         if ( ! $payfull ) {
             return;
         }
+
         $params = explode('/', $payfull);
         $version = $params[0];
         $data = $_POST;
         $result = null;
-        
+
         if(!isset($data['command'])) {
             throw new Exception("Invalide request.");
         }
         if($version!="v1") {
             throw new Exception("unsupported version.");
         }
-        
+
         $cmd = $data['command'];
         switch($cmd) {
             case 'bin':
@@ -128,7 +118,7 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
             default:
                 $result = ['error' => true, 'message'=>'Unsupported command'];
                 break;
-        }   
+        }
 
         wp_send_json( $result );
     }
@@ -136,13 +126,11 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
     /**
      * override
      */
-    public function init_settings()
-    {
+    public function init_settings() {
         parent::init_settings();
     }
 
-    public function init_form_fields()
-    {
+    public function init_form_fields() {
         $this->form_fields = [
             'enabled' => [
                 'title' => __('Enabled', 'payfull'),
@@ -157,9 +145,9 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
                 'default' => __('Payfull Checkout', 'payfull'),
             ],
             'description' => array(
-                'title' => __('Description', 'wc_iyzicocheckout'),
+                'title' => __('Description', 'payfull'),
                 'type' => 'textarea',
-                'description' => __('The message to display during checkout.', 'wc_iyzicocheckout'),
+                'description' => __('The message to display during checkout.', 'payfull'),
                 'default' => __('Pay via Payfull, pay safely with your credit card.', 'payfull'),
             ),
             'endpoint' => [
@@ -205,7 +193,7 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
                 'description' => __('Choose whether to enable extra installment option.', 'payfull'),
             ),
             'enable_bkm' => array(
-                'title' => __('Enable BKM EXpress', 'payfull'),
+                'title' => __('Enable BKM Express', 'payfull'),
                 'type' => 'select',
                 'options'     => array(__( 'No', 'payfull' ),__( 'Yes', 'payfull' )),
                 'description' => __('Choose whether to enable BKM Express gateway.', 'payfull'),
@@ -226,7 +214,6 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
                 'title' => __('Custom Css', 'payfull'),
                 'type' => 'textarea',
                 'default' => file_get_contents (WP_PLUGIN_DIR. '/woo-gateway-payfull/assets/custom.css'),
-                // 'description' => __('Customiz the installments table.', 'payfull'),
             ],
         ];
     }
@@ -234,17 +221,16 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
     function process_payment( $order_id ) {
     	global $woocommerce;
         $order      = wc_get_order( $order_id );
-        
+
         if(!$order) {
             wc_add_notice( __('Failed to process the payment because of invalid order', 'payfull'), 'error' );
             return array(
                 'result' => 'error'
             );
         }
-        
+
         if($order) {
             $checkout_payment_url = $order->get_checkout_payment_url(true);
-
             return array(
                 'result' => 'success',
                 'redirect' => add_query_arg(
@@ -256,58 +242,56 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
                 ),
             );
         }
-
         wc_add_notice( __('Failed to process the payment because of invalid order', 'payfull'), 'error' );
         return null;
-
     }
     
-    public function process_refund( $order_id, $amount = null,$reason = '' )
-    {
-        
+    public function process_refund( $order_id, $amount = null,$reason = '') {
         if(!isset($amount)) {
             return false;
         }
+
         $order = wc_get_order($order_id);
-        
+
         if($order) {
-            // $xid = $order->get_transaction_id();
             $xid = get_post_meta( $order->id, '_payfull_transaction_id', true );
+
             if(empty($xid)) {
                 $order->add_order_note(__('Can not refund this order because the transaction id is missing.', 'payfull'));
                 return false;
             }
-            
+
             $crcy = $order->get_order_currency();
             $response = $this->payfull()->refund($xid, $amount);
+
             if(isset($response['status']) && $response['status']) {
                 $order->add_order_note("Refunding {$crcy} {$amount} succeeded. Transaction Id: ".$response['transaction_id']);
                 return true;
             }
+
             $error = $this->getErrorMessage($response,"Unknown error occured");
             $order->add_order_note("Refunding {$crcy} {$amount} failed. ".$error);
         }
-        
         return false;
     }
 
-    public function receipt_page($order_id)
-    {
+    public function receipt_page($order_id) {
         $o = new WC_Order;
         $order = wc_get_order(isset($order_id) ? $order_id : false);
+
         if($order===false) {
             throw new \Exception('Invalid request, the order is not recognized.');
         }
-        
+
         $data = [];
         do_action( 'woocommerce_credit_card_form_start', $this->id );
-        
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = $_POST;
+
             array_walk_recursive($data, function(&$item) {
                 $item = sanitize_text_field($item);
             });
-            
             $errors = $this->validatePaymentForm($data);
             if($errors !== true) {
                 foreach ($errors as $err) {
@@ -317,7 +301,7 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
                 $this->sendPayment($order, $data);
             }
         }
-        
+
         $this->renderView('views/payment-form.php', [
             'this'=>$this,
             'id' => esc_attr($this->id),
@@ -337,8 +321,7 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
         do_action( 'woocommerce_credit_card_form_end', $this->id );
     }
     
-    protected function sendPayment($order, $data)
-    {
+    protected function sendPayment($order, $data) {
         $use3d               = 0;
         $installments        = 1;
         $card                = isset($data['card']) ? $data['card'] : null;
@@ -355,32 +338,25 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
         if($this->force_3dSecure_debit) {
             $bin = str_replace(' ', '', $card['pan']);
             $bin = substr($bin, 0, 6);
-            $cardInfo = $this->hepsipay()->bin($bin);
+            $cardInfo = $this->payfull()->bin($bin);
             if($cardInfo['status']){
                 $cardInfo = $cardInfo['data'];
-                if(
-                    !isset($cardInfo['type']) OR
-                    $cardInfo['type'] != 'CREDIT' OR
-                    $cardInfo['type'] == null
-                ) $use3d = true;
+                if( !isset($cardInfo['type']) OR $cardInfo['type'] != 'CREDIT' OR $cardInfo['type'] == null )
+                    $use3d = true;
             }else{
                 $use3d = true;
             }
         }
 
-
         if($this->enable_installment && isset($data['installment'])) {
             $installments = intval($data['installment']);
             $installments = $installments <=0 ? 1 : $installments;
         }
-        
+
         $fname = $order->billing_first_name;
         $lname = $order->billing_last_name;
         $order->update_status('wc-pending', 'Process payment by Payfull');
 
-        $total = $order->get_total();
-
-        
         $request = [
             'total'                 => $order->get_total(),
             'currency'              => $order->get_order_currency(),
@@ -406,6 +382,7 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
             return;
         }
 
+        $total = $order->get_total();
         $fee = $this->payfull()->getCommission($total, $bank_id, $installments);
         WC()->session->set( 'installment_fee',    $fee );
 
@@ -436,13 +413,18 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
         }
 
         $return_json = !($use3d OR $data["useBKM"]);
-
         $response = $this->payfull()->send('Sale', $request, $return_json);
+
+        if($response == null){
+            $response = ['ErrorMSG' => $this->getErrorMessage($response,__('Invalid response received.', 'hepsipay'))];
+            $message = $response['ErrorMSG'];
+            wc_add_notice($message, 'error');
+            return;
+        }
 
         if($use3d or $data["useBKM"]) {
             if(strpos($response, '<html')===false AND json_decode($response) == null) {
                 $error = $this->getErrorMessage($response,__('Invalid response received.', 'payfull'));
-                //$order->update_status('wc-failed', $error);
                 wc_add_notice( $error, 'error' );
                 $order->add_order_note('Could not complete the transaction.' . $error);
                 return;
@@ -452,7 +434,7 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
             }
         }
 
-        $response = (json_decode($response) == null)?$response:(array)json_decode($response);
+        $response = (@json_decode($response) == null)?$response:json_decode($response,true);
         if($this->processPaymentResponse($order, $response)) {
             $message = __('Thank you for shopping with us. Your transaction is succeeded.', 'payfull');
             wc_add_notice($message);
@@ -462,8 +444,7 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
         }
     }
 
-    public function check_payment_response()
-    {
+    public function check_payment_response() {
         global $woocommerce;
         
         if ( ! defined( 'ABSPATH' ) ) {
@@ -476,7 +457,7 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
         $type       = "error";
         $title      = __('Bad request', 'payfull');
         $data       = $_POST;
-        
+
         array_walk_recursive($data, function(&$item) {
             $item  = sanitize_text_field($item);
         });
@@ -485,6 +466,7 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
         $order_id       = isset($data['passive_data']) ? $data['passive_data'] : (isset($_GET['order-id']) ? $_GET['order-id'] : null);
         $order          = wc_get_order($order_id);
         $hash           = $this->generateHash($data);
+
         $redirect_url   = $woocommerce->cart->get_checkout_url();
         
         if(!isset($order)) {
@@ -493,9 +475,7 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
                 $message = printf(__('The payment is done but your order not found. Your transaction id is "%1$s"', 'payfull'), $tx);
             }
         }
-        // else if($order->status != 'wc-pending' || $order->status=='completed') {
-        //     $message = __('Invalid status for the requested order'. ' '.$order_id.'.', 'payfull');
-        // }
+
         else if($hash != $data['hash']) {
              $message = __('Invalid hash code', 'payfull').' '.$order_id;
         }
@@ -518,28 +498,40 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
         wp_redirect($redirect_url);
     }
 
-    protected function generateHash($params){
+    protected function generateHash($params) {
         $arr = [];
         unset($params['hash']);
+
         foreach($params as $param_key=>$param_val){$arr[strtolower($param_key)]=$param_val;}
         ksort($arr);
         $hashString_char_count = "";
+
         foreach ($arr as $key=>$val) {
-            $l = mb_strlen($val);
-            if($l) $hashString_char_count .= $l . $val;
+            $l =  mb_strlen($val);
+            $hashString_char_count .= $l . $val;
         }
+
         $hashString_char_count      = strtolower(hash_hmac("sha1", $hashString_char_count, $this->password));
+
         return $hashString_char_count;
     }
 
-    protected function processPaymentResponse($order, $response)
-    {
+    protected function processPaymentResponse($order, $response) {
+
+        $hash = $this->generateHash($response);
+
         if(isset($response['status']) && $response['status']) {
             $xid = $response['transaction_id'];
             if(empty($xid)) {
                 $order->add_order_note("Invalid response: Transaction id is missing.");
                 return false;
             }
+
+            if($hash != $response['hash'] AND !isset($response['html']) AND $response['use3d'] == 1){
+                $order->add_order_note("Invalid hash code. Faruk");
+                return false;
+            }
+
             $order->add_order_note("Payment Via Payfull, Transaction ID: {$xid}");
 
             $installments      = isset($response['installments'])?$response['installments']:1;
@@ -559,25 +551,24 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
         }
     }
 
-    protected function getErrorMessage($response, $default)
-    {
+    protected function getErrorMessage($response, $default) {
         if(isset($response['ErrorMSG']) && strlen($response['ErrorMSG']))
             return $response['ErrorMSG'];
         return $default;
     }
 
     /**
-     * @return boolyean|array true on success otherwise it resturns array of errors
+     * @return boolean|array true on success otherwise it returns array of errors
      */
-    protected function validatePaymentForm($form)
-    {
+    protected function validatePaymentForm($form) {
         $errors = [];
         if(!isset($form['card']['holder']) || empty($form['card']['holder'])) {
             $errors[] = __('Holder name cannot be empty.', 'payfull');
         }
+
         if(!isset($form['card']['pan']) || empty($form['card']['pan'])) {
             $errors[] = __('Card number cannot be empty.', 'payfull');
-        }elseif(!$this->checkCCNumber($form['card']['pan'])){
+        } elseif(!$this->checkCCNumber($form['card']['pan'])){
             $errors[] = __('Please enter a valid credit card number.', 'payfull');
         }
 
@@ -593,12 +584,13 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
 
         if(!isset($form['card']['month']) || empty($form['card']['month'])) {
             $errors[] = __('Card expiration month cannot be empty.', 'payfull');
-        }else {
+        } else {
             $m = intval($form['card']['month']);
             if($m<1 || $m > 12) {
                 $errors[] = __('The expiration month is invalid: '.var_export($form['card']['month'], 1), 'payfull');
             }
         }
+
         if(!$this->checkCCEXPDate($form['card']['month'], $form['card']['year'])){
             $errors[] = __('The expiration month is invalid: '.var_export($form['card']['month'], 1), 'payfull');
         }
@@ -621,16 +613,16 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
             $errors = [];
         }
 
-        
         return count($errors) ? $errors : true;
     }
 
-    protected function saveOrderCommission($order, $amount, $installments, $extraInstallments)
-    {
+    protected function saveOrderCommission($order, $amount, $installments, $extraInstallments) {
+
         if($extraInstallments != '' AND $extraInstallments != 0){
             $installments .= ' +'.$extraInstallments;
             $installments  = __('Installment Commission'.' ('.$installments.')', 'payfull');
         }
+
         if($installments == 1){
             $oneShotCommission = $this->payfull()->oneShotCommission();
             $total             = $order->get_total();
@@ -647,14 +639,14 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
         $order->calculate_totals();
     }
 
-    protected function checkCCEXPDate($month, $year){
+    protected function checkCCEXPDate($month, $year) {
         if(strtotime('01-'.$month.'-'.$year) <= time()){
             return false;
         }
         return true;
     }
 
-    protected function checkCCNumber($cardNumber){
+    protected function checkCCNumber($cardNumber) {
         $cardNumber = preg_replace('/\D/', '', $cardNumber);
         $len = strlen($cardNumber);
         if ($len < 15 || $len > 16) {
@@ -674,7 +666,7 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
         }
     }
 
-    protected function checkCCCVC($cardNumber, $cvc){
+    protected function checkCCCVC($cardNumber, $cvc) {
         // Get the first number of the credit card so we know how many digits to look for
         $firstnumber = (int) substr($cardNumber, 0, 1);
         if ($firstnumber === 3){
@@ -690,8 +682,7 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
         return true;
     }
 
-    protected  function renderView($_viewFile_,$_data_=null,$_return_=false)
-    {
+    protected  function renderView($_viewFile_,$_data_=null,$_return_=false) {
         if(is_array($_data_)) {
 			extract($_data_,EXTR_PREFIX_SAME,'data');
         } else {
@@ -707,6 +698,5 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway
 			require($_viewFile_);
         }
     }
-
 
 }

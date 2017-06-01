@@ -92,15 +92,39 @@ $VALS = [
         margin: 0 auto;
         box-shadow: none;
     }
+    .formTitle{
+        margin-bottom: 14px;
+        border: 2px solid #ccc;
+        padding: 8px;
+        background-color: #ccc;
+    }
+
+    #titleText{
+        margin: 0 auto;
+        padding: 0;
+        display: inline-block;
+        vertical-align: middle;
+        font-size: 19px;
+    }
+    #payfullImageOnly{
+        vertical-align: middle;
+    }
 </style>
 <form method="post" class="col-md-12 payfull-checkout-form">
     <div class="fieldset" id="<?php echo $IDS['cardset']; ?>">
-        <?php if($enable_bkm):?>
+        <?php if($enable_bkm) { ?>
             <ul class="tab">
                 <li><a href="javascript:void(0)" class="tablinks active" data-method="cardPaymentMethod"><?php echo __('Credit card/Debit card', 'payfull'); ?><img id="payfullImage" src="<?php echo $bankImagesPath; ?>logo.png"></a></li>
                 <li><a href="javascript:void(0)" class="tablinks bkmTab" data-method="bkmPaymentMethod"><img class="bkmImage" id="bkmLogo" src="<?php echo $bankImagesPath; ?>/BKM.png"></a></li>
             </ul>
-        <?php endif;?>
+        <?php } else { ?>
+            <div class="formTitle">
+                <p id="titleText"><?php echo __('Credit card/Debit card', 'payfull'); ?>
+                <img id="payfullImageOnly" src="<?php echo $bankImagesPath; ?>logo.png"></p>
+
+            </div>
+         <?php } ?>
+
         <?php //do_action( 'woocommerce_credit_card_form_start', $this->id ); ?>
 
         <?php if($enable_bkm):?>
@@ -202,11 +226,6 @@ $VALS = [
                         </label>
                     </p>
                 <?php endif; ?>
-
-
-
-
-
         <?php if($enable_bkm):?>
             </div>
             <div class="tabcontent" id="bkmPaymentMethod">
@@ -237,7 +256,6 @@ $VALS = [
             totalSelector: "<?php echo $total_selector;?>",
             currencyClass: "<?php echo $currency_class;?>",
             oneShotCommission: 0,
-
 
             loadBanks: function() {
                 $.ajax({
@@ -286,7 +304,7 @@ $VALS = [
                 this.detectCardBrand($(element));
                 var bin = $(element).val().replace(/\s/g, '').substr(0, 6);
                 if (bin.length < 6) {
-                    payfull.refreshInstallmentPlans('', '');
+                    payfull.refreshInstallmentPlans('', '', '', '');
                     $bank_photo.hide();
                     this.bin = bin;
                     return;
@@ -302,11 +320,10 @@ $VALS = [
                     dataType: "json",
                     success: function (response) {
                         var bank = response.data.bank_id;
-                        if (bank) {
-                            payfull.refreshInstallmentPlans(bank, response.data.type);
-                        }else{
-                            payfull.refreshInstallmentPlans('', response.data.type);
-                        }
+                        var networkOrigin = response.data.bankAcceptInstallments.origin;
+                        var networkMembers = response.data.bankAcceptInstallments.network;
+
+                        payfull.refreshInstallmentPlans(bank, response.data.type, networkOrigin, networkMembers);
 
                         //force 3d for debit
                         if(response.data.type != 'CREDIT'){
@@ -321,7 +338,7 @@ $VALS = [
                         //show bank image
                         if(bank && bank.length){
                             if(response.data.type == 'CREDIT'){
-                                $bank_photo.attr('src', $bank_photo.attr('data-src')+'networks/'+bank+'.png');
+                                $bank_photo.attr('src', $bank_photo.attr('data-src')+'networks/'+networkOrigin+'.png');
                             }else{
                                 $bank_photo.attr('src', $bank_photo.attr('data-src')+'banks/'+bank+'.png');
                             }
@@ -385,7 +402,7 @@ $VALS = [
                 ;
             },
 
-            refreshInstallmentPlans: function (bankName, cardType) {
+            refreshInstallmentPlans: function (bankName, cardType, networkOrigin, networkMembers) {
                 this.payOneShot();
 
                 var $e = $('#installment_body');
@@ -396,23 +413,54 @@ $VALS = [
                 if(cardType != 'CREDIT'){
                     return;
                 }
+
+                var origin        = 'false';
+                var cardIssuer    = 'false';
+                var member        = 'false';
+
                 for (var i in this.banks) {
                     var bank = this.banks[i];
-                    if (bank.bank == bankName) {
-                        var opt, t, fee;
-
-                        for (var j in bank.installments) {
-                            opt = bank.installments[j];
-                            if(opt.count < 2) continue;
-                            
-                            fee = parseFloat(opt.commission);
-                            t = Math.round(this.total * (1+fee)*100)/100;
-                            optEl = this.getInstallmentOption(opt.count, this.total, fee, this.currency, bank.has3d, bank.bank, bank.gateway, opt.hasExtra) ;
-                            $e.append(optEl);
-                        }
+                    if(bank.bank == networkOrigin){
+                        origin = bank;
                         break;
+                    } else if (bank.bank == bankName) {
+                        cardIssuer = bank;
+                    } else {
+                        for (var b in networkMembers){
+                            var members = networkMembers[b];
+                            if(members == bankName){
+                                continue;
+                            } else if (bank.bank == members) {
+                                member = bank;
+                                break;
+                            }
+                        }
                     }
                 }
+
+                if(origin != 'false') {
+                    bank = origin;
+                } else if (cardIssuer != 'false') {
+                    bank = cardIssuer;
+                } else if (member != 'false') {
+                    bank = member;
+                }
+
+                if (bank) {
+                    var opt, t, fee;
+
+                    for (var j in bank.installments) {
+                        opt = bank.installments[j];
+                        if(opt.count < 2) continue;
+
+                        fee = parseFloat(opt.commission);
+                        t = Math.round(this.total * (1+fee)*100)/100;
+                        optEl = this.getInstallmentOption(opt.count, this.total, fee, this.currency, bank.has3d, bank.bank, bank.gateway, opt.hasExtra) ;
+                        $e.append(optEl);
+                    }
+                } else
+                    alert("Banka bulunamadı.");
+
             },
 
             getExtraInstallments: function (total, count, bank, gateway) {
@@ -534,7 +582,7 @@ $VALS = [
                         success: function (response) {
                             var bank = response.data.bank_id;
                             if (bank) {
-                                payfull.refreshInstallmentPlans(bank, response.data.type);
+                                payfull.refreshInstallmentPlans(bank, response.data.type, networkOrigin, networkMembers);
                             }
 
                             if(bank && bank.length){
@@ -567,7 +615,7 @@ $VALS = [
                     this.payWithInstallment(1, '', '');
                 },
 
-                refreshInstallmentPlans: function (bankName, cardType) {
+                refreshInstallmentPlans: function (bankName, cardType, networkOrigin, networkMembers) {
                 },
 
                 run: function () {
