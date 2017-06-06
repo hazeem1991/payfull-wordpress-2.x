@@ -49,71 +49,11 @@ $VALS = [
 
 
 ?>
-<style>
-    .install_body_label {float: left;width: 30%;height: 40px;text-align: center; border-bottom: 1px solid #d2d2d2;line-height: 40px;}
-    .installment_row {/* padding-top: 10px;*/}
-    .install_body_label.installment_radio, .installmet_head .install_head_label.add_space {height: 40px;text-align: center;width: 10%;line-height: 40px;}
-    #installment_table_id {background-color: #eee;border: 1px solid;border-radius: 5px;padding: 10px;margin-top: 20px;}
-    .installmet_head .install_head_label {float: left;font-weight: bold;text-align: center;width: 30%; height: 40px;line-height: 40px;border-bottom: 2px solid #d2d2d2; }
-    .installment_body , .installment_footer {  clear: both; }
-    .toatl_label {display:  none;}
-    /* Style the list */
-    ul.tab {  list-style-type: none;  margin: 0;  padding: 0;  overflow: hidden;  border: 1px solid #ccc;  background-color: #f1f1f1; height: 61px; }
-    /* Float the list items side by side */
-    ul.tab li {float: left; height: 61px;}
-    /* Style the links inside the list items */
-    ul.tab li a {  display: inline-block;  color: black;  text-align: center;  padding: 5px 16px;  text-decoration: none;  transition: 0.3s;  font-size: 17px; height: 61px; }
-    /* Change background color of links on hover */
-    ul.tab li a:hover {background-color: #ddd;}
-    /* Create an active/current tablink class */
-    ul.tab li a:focus, .active {background-color: #ccc;}
-    /* Style the tab content */
-    .tabcontent {  display: none;  padding: 6px 12px;  border: 1px solid #ccc;  border-top: none;  }
-    .bkmImage {  height: 100% !important;  }
-    .bkmTab {  padding: 2px !important;  }
-    .payfull-checkout-form {
-        max-width: 500px;
-    }
-    .payfull-month-select-div, .payfull-year-select-div{
-        float: left;
-        width: 49%;
-        margin-right: 1%;
-        margin-top: 10px;
-    }
-    #payfullImage{
-        padding: 0;
-        margin: 0 auto;
-        max-width: 90px;
-        box-shadow: none;
-        display: block;
-    }
-    #bkmLogo{
-        padding: 0;
-        margin: 0 auto;
-        box-shadow: none;
-    }
-    .formTitle{
-        margin-bottom: 14px;
-        border: 2px solid #ccc;
-        padding: 8px;
-        background-color: #ccc;
-    }
 
-    #titleText{
-        margin: 0 auto;
-        padding: 0;
-        display: inline-block;
-        vertical-align: middle;
-        font-size: 19px;
-    }
-    #payfullImageOnly{
-        vertical-align: middle;
-    }
-</style>
-<form method="post" class="col-md-12 payfull-checkout-form">
+<form method="post" class="col-md-12 payfull-checkout-form" id="pf_window">
     <div class="fieldset" id="<?php echo $IDS['cardset']; ?>">
         <?php if($enable_bkm) { ?>
-            <ul class="tab">
+            <ul class="tab" id="pf_titleTab">
                 <li><a href="javascript:void(0)" class="tablinks active" data-method="cardPaymentMethod"><?php echo __('Credit card/Debit card', 'payfull'); ?><img id="payfullImage" src="<?php echo $bankImagesPath; ?>logo.png"></a></li>
                 <li><a href="javascript:void(0)" class="tablinks bkmTab" data-method="bkmPaymentMethod"><img class="bkmImage" id="bkmLogo" src="<?php echo $bankImagesPath; ?>/BKM.png"></a></li>
             </ul>
@@ -125,22 +65,20 @@ $VALS = [
             </div>
          <?php } ?>
 
-        <?php //do_action( 'woocommerce_credit_card_form_start', $this->id ); ?>
-
         <?php if($enable_bkm):?>
             <div class="tabcontent" id="cardPaymentMethod" style="display: block;">
         <?php endif;?>
-                <p class="form-row form-row-wide">
+                <p class="checkout-form-line">
                     <label for="<?php echo $IDS['holder']; ?>"><?php echo $LBLS['holder']; ?> <span class="required">*</span></label>
                     <input id="<?php echo $IDS['holder']; ?>" value="<?php echo $VALS['holder']; ?>" class="input-text wc-credit-card-form-card-holder" type="text" maxlength="20" autocomplete="off" placeholder="" name="card[holder]" />
                 </p>
-                <p class="form-row form-row-wide">
+                <p class="checkout-form-line">
                     <label for="<?php echo $IDS['pan']; ?>"><?php echo $LBLS['pan']; ?> <span class="required">*</span></label>
                     <input value="<?php echo $VALS['pan']; ?>" id="<?php echo $IDS['pan']; ?>" data-value="<?php echo $VALS['pan']; ?>" class="input-text wc-credit-card-form-card-number input-cc-number-not-supported" type="text" maxlength="20" autocomplete="off" placeholder="•••• •••• •••• ••••" name="card[pan]" />
                 </p>
-                <div class="form-row form-row-wide">
-                    <div class="payfull-month-select-div">
-                        <p class="form-row form-row-first payfull-month-select-p">
+                <div class="checkout-form-line">
+                    <div class="pf_dates_div" id="pf_month_select_div">
+                        <p class="form-row form-row-first" id="pf_month_p">
                             <label for="<?php echo $IDS['month']; ?>"><?php echo $LBLS['month']; ?> <span class="required">*</span></label>
                             <select id="<?php echo $IDS['month']; ?>" name="card[month]" class="input-text wc-credit-card-form-card-month">
                                 <option value=""><?php echo __('Month', 'payfull'); ?></option>
@@ -153,8 +91,8 @@ $VALS = [
                         </p>
                     </div>
 
-                    <div class="payfull-year-select-div">
-                        <p class="form-row form-row-last payfull-year-select-p">
+                    <div class="pf_dates_div" id="pf_month_select_div">
+                        <p class="form-row form-row-last" id="pf_year_p">
                             <label for="<?php echo $IDS['year']; ?>"><?php echo $LBLS['year']; ?> <span class="required">*</span></label>
                             <select id="<?php echo $IDS['year']; ?>" name="card[year]" class="input-text wc-credit-card-form-card-year">
                                 <option value=""><?php echo __('Year', 'payfull'); ?></option>
@@ -168,7 +106,7 @@ $VALS = [
                     </div>
 
                 </div>
-                <p class="form-row form-row-wide">
+                <p class="checkout-form-line">
                     <label for="<?php echo $IDS['cvc']; ?>"><?php echo $LBLS['cvc']; ?> <span class="required">*</span></label>
                     <input id="<?php echo $IDS['cvc']; ?>" value="<?php echo $VALS['cvc']; ?>" class="input-text wc-credit-card-form-card-cvc" type="text" autocomplete="off" placeholder="CVC" name="card[cvc]" />
                 </p>
@@ -200,7 +138,7 @@ $VALS = [
 
 
                 <?php if($enable_extra_installment) : ?>
-                <div class="form-row form-row-wide extra_installments_container" style="display: none">
+                <div class="checkout-form-line extra_installments_container" style="display: none">
                     <p class="form-row form-row-first" >
                         <label><?php echo __('Extra Installmets', 'payfull') ?></label>
                     </p>
@@ -211,7 +149,7 @@ $VALS = [
 
                 <?php if($force_3dSecure) : ?>
 
-                    <p class="form-row form-row-wide payfull-3dsecure" id="<?php echo $IDS['use3d-row'] ?>">
+                    <p class="checkout-form-line payfull-3dsecure" id="<?php echo $IDS['use3d-row'] ?>">
                         <label for="<?php echo $IDS['use3d']; ?>">
                             <input data-forced="true" checked="checked" disabled="disabled" id="<?php echo $IDS['use3d']; ?>" class="input-checkbox payfull-options-use3d" type="checkbox" name="use3d" value="true" />
                             <?php echo $LBLS['use3d']; ?>
@@ -219,7 +157,7 @@ $VALS = [
                     </p>
                 <?php elseif($enable_3dSecure) : ?>
 
-                    <p class="form-row form-row-wide payfull-3dsecure" id="<?php echo $IDS['use3d-row'] ?>">
+                    <p class="checkout-form-line payfull-3dsecure" id="<?php echo $IDS['use3d-row'] ?>">
                         <label for="<?php echo $IDS['use3d']; ?>">
                             <input data-forced="false" <?php if(isset($VALS['use3d'])AND$VALS['use3d']) echo 'checked'; ?> id="<?php echo $IDS['use3d']; ?>" class="input-checkbox payfull-options-use3d" type="checkbox" name="use3d" value="true" />
                             <?php echo $LBLS['use3d']; ?>
@@ -240,8 +178,9 @@ $VALS = [
 
         <?php //do_action( 'woocommerce_credit_card_form_end', $this->id ); ?>
         <div class="clear"></div>
-
-        <input type="submit" value="<?php echo __( 'Checkout', 'payfull' ); ?>" class="btn button btn-primary bottun-primary button default small">
+        <div id="pf_submit_div">
+        <input type="submit" value="<?php echo __( 'Checkout', 'payfull' ); ?>" id="pf_submit">
+        </div>
         <br><br>
 </form>
 
@@ -684,6 +623,5 @@ $VALS = [
             });
         })(jQuery);
     </script>
-
 
 <?php $this->renderView(__DIR__."/card-brand.css.php");?>
