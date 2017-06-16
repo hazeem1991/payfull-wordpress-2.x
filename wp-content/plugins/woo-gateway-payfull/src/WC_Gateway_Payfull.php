@@ -164,7 +164,7 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway {
             ),
             'password' => array(
                 'title' => __('Api Password', 'payfull'),
-                'type' => 'text',
+                'type' => 'password',
                 'default' => '',
                 // 'description' => __('', 'payfull'),
             ),
@@ -172,7 +172,7 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway {
                 'title' => __('Enable 3D secure', 'payfull'),
                 'type' => 'select',
                 'options'     => array(__( 'No', 'payfull' ),__( 'Yes', 'payfull' )),
-                'description' => __('Choose whether to enable 3D secure payament option.', 'payfull'),
+                'description' => __('Choose whether to enable 3D secure payment option.', 'payfull'),
             ),
             'force_3dSecure' => array(
                 'title' => __('Force 3D Secure', 'payfull'),

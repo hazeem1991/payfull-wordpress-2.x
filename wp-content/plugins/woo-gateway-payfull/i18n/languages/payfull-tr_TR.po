@@ -2,14 +2,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tr_TR\n"
 "POT-Creation-Date: 2016-08-02 14:23+0300\n"
-"PO-Revision-Date: 2017-05-03 12:01+0300\n"
+"PO-Revision-Date: 2017-06-16 16:05+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.12\n"
+"X-Generator: Poedit 1.8.2\n"
 "X-Poedit-Basepath: ../..\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-KeywordsList: __;_e;_x\n"
@@ -81,7 +81,6 @@ msgstr "3D Zorunlu"
 msgid "If 3D secure option is mandatory in Payfull side, this option must be enable. Otherwise your transactions will fail."
 msgstr "Hepsipay tarafından 3D secure özelliği tarafınıza zorunlu tutulduysa bu seçeneğin aktif olması gerekmektedir. Aksi takdirde işlemleriniz başarısız olacaktır."
 
-
 #: src/WC_Gateway_Payfull.php:177 src/WC_Gateway_Payfull.php:183
 msgid "No"
 msgstr "Hayır"
@@ -108,19 +107,16 @@ msgstr "Ekstra Taksit Aktif"
 msgid "Enable BKM Express"
 msgstr "BKM Express Aktif"
 
-msgid "BKM Exkpress'i aktif edebilirsiniz."
-msgstr "Choose whether to enable BKM Express gateway."
+msgid "Choose whether to enable BKM Express gateway."
+msgstr "BKM Exkpress'i aktif edebilirsiniz."
 
 #: src/WC_Gateway_Payfull.php:187
 msgid "Total Selector"
 msgstr "Total"
 
 #: src/WC_Gateway_Payfull.php:190
-msgid ""
-"A jQuery selector of the HTML element that contains the total amount in "
-"checkout page."
-msgstr ""
-"Ödeme Sayfasındaki Toplam Fiyatı Gösteren HTML Elementinin JQuery Seçicisi"
+msgid "A jQuery selector of the HTML element that contains the total amount in checkout page."
+msgstr "Ödeme Sayfasındaki Toplam Fiyatı Gösteren HTML Elementinin JQuery Seçicisi"
 
 #: src/WC_Gateway_Payfull.php:193
 msgid "Currency Class"
@@ -164,8 +160,7 @@ msgstr "Sipariş Bulunamadı"
 
 #: src/WC_Gateway_Payfull.php:430
 #, php-format
-msgid ""
-"The payment is done but your order not found. Your transaction id is \"%1$s\""
+msgid "The payment is done but your order not found. Your transaction id is \"%1$s\""
 msgstr "Ödeme Başarılı fakat Sipariş Bulunamadı. Sipariş Numarası \"%1$s\""
 
 #: src/WC_Gateway_Payfull.php:446
@@ -246,7 +241,7 @@ msgstr "Taksit"
 
 #: src/views/payment-form.php:31 src/views/payment-form.php:107
 msgid "Total"
-msgstr "Total"
+msgstr "Toplam"
 
 #: src/views/payment-form.php:74
 msgid "Month"
@@ -278,4 +273,7 @@ msgid "Holder Name"
 msgstr "Kart Üzerindeki Ad Soyad"
 
 msgid "Credit card/Debit card"
-msgstr "Kredi kartı / Debit kartı"
+msgstr "Kredi kartı / Banka kartı"
+
+msgid "Choose whether to enable extra installment option."
+msgstr ""
