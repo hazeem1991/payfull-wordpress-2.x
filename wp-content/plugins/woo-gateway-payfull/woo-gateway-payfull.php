@@ -6,8 +6,8 @@
  *  Text Domain: payfull
  *  Domain Path: /i18n/languages/
  *  Version: 1.0.0
- *  Author: Payfull
- *  Author URI: https://www.payfull.com
+ *  Author: Faruk Cinemre
+ *  Author URI: https://www.t4u.com.tr
  * */
 
 if ( ! defined( 'ABSPATH' ) ) {

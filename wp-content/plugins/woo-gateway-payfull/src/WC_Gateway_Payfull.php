@@ -3,11 +3,8 @@
 class WC_Gateway_Payfull extends WC_Payment_Gateway {
     const INSTALLMENTS_TYPE_TABLE = "table";
     const INSTALLMENTS_TYPE_LIST = "list";
-    
     protected static $_instance = null;
-    
     private $_payfull;
-    
     public $username = null;
     public $password = null;
     public $custom_css = null;
@@ -26,7 +23,7 @@ class WC_Gateway_Payfull extends WC_Payment_Gateway {
 
     public function __construct($register_hooks=false) {
         $this->id = 'woo_gateway_payfull';
-        $this->icon = plugins_url('woo-gateway-payfull/assets/img/icon.png');
+        $this->icon = plugins_url('assets/img/icon.png', dirname(__FILE__));
         $this->has_fields = false;
         $this->method_title = __('Payfull', 'payfull');
         $this->method_description = __('Process payment via Payfull service.', 'payfull');
