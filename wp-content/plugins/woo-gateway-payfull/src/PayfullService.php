@@ -170,7 +170,7 @@ class PayfullService {
         ksort($data);
         foreach($data as $key=>$value) {
             $l = mb_strlen($value);
-            if($l) $message .= $l . $value;
+            $message .= $l . $value;
         }
         $hash = hash_hmac('sha1', $message, $this->password);
         
